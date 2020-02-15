@@ -1,7 +1,7 @@
 console.log(`running ${process.env.NODE_ENV}`)
 const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV)
-// const path = require('path')
-// const resolve = dir => path.join(__dirname, dir)
+const path = require('path')
+const resolve = dir => path.join(__dirname, dir)
 
 module.exports = {
   publicPath: IS_PROD ? process.env.VUE_APP_PUBLIC_PATH : './', // 默认'/'，部署应用包时的基本 URL
@@ -24,13 +24,12 @@ module.exports = {
     hotOnly: true, // 热更新
     proxy: {
       '/api': {
-        target:
-          'http:localhost:3000', // 目标代理接口地址
+        target: 'http://localhost:3000', // 目标代理接口地址
         secure: false,
         changeOrigin: true, // 开启代理，在本地创建一个虚拟服务端
         // ws: true, // 是否启用websockets
         pathRewrite: {
-          '^/api': '/'
+          '^/api': ''
         }
       }
     }
@@ -38,7 +37,7 @@ module.exports = {
   chainWebpack: config => {
     // 修复HMR
     config.resolve.symlinks(true)
-    // config.resolve.alias
+    config.resolve.alias.set('@', resolve('src'))
     // .set('vue$', 'vue/dist/vue.esm.js')
     // .set('@', resolve('src'))
   }
