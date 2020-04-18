@@ -6,12 +6,24 @@
 
         <div class="form">
           <input type="text"
-                 placeholder="Username">
-          <input type="password"
-                 placeholder="Password">
-          <button type="submit"
+                 v-model="user.account"
+                 placeholder="账号">
+          <input v-if="this.$route.path==='/registry'"
+                 type="text"
+                 v-model="user.name"
+                 placeholder="用户名">
+          <input type="
+                 password"
+                 v-model="user.password"
+                 placeholder="密码">
+          <button v-if="this.$route.path==='/login'"
+                  type="submit"
                   id="login-button"
-                  @click="login">Login</button>
+                  @click="login">登录</button>
+          <button v-else
+                  type="submit"
+                  id="login-button"
+                  @click="registry">注册</button>
         </div>
       </div>
 
@@ -32,7 +44,7 @@
 </template>
 
 <script>
-// import { login } from '@/api/user'
+import { login, registry } from '@/api/user'
 // console.log(login)
 export default {
   components: {
@@ -40,25 +52,55 @@ export default {
   },
   data () {
     return {
-
+      user: {
+        // 用户名
+        name: '',
+        // 账号
+        account: null,
+        // 密码
+        password: null
+      }
     }
   },
   created () {
-    // login({ name: 1 }).then(res => {
-    //   console.log(res)
-    // }).catch(err => {
-    //   console.log(err)
-    // })
+
   },
   mounted () {
 
   },
   methods: {
+    // 登录
     login (event) {
       event.preventDefault()
       // document.getElementsByClassName('form')[0].fadeOut(500)
       // document.getElementsByClassName('wrapper')[0].addClass('form-success')
-      this.$router.push('index')
+      login({ ...this.user }).then(res => {
+        if (res.data.code === 200) {
+          if (res.data.res.length > 0) {
+            localStorage.setItem('userInfo', JSON.stringify(res.data.res[0]))
+            this.$router.push('index')
+          } else {
+            console.log(res.data.msg)
+          }
+        } else {
+          console.log('登录失败')
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    // 注册
+    registry (event) {
+      event.preventDefault()
+      registry({ ...this.user }).then(res => {
+        if (res.data.msg === '注册成功') {
+          this.$router.push('login')
+        } else {
+          console.log(res.data.msg)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }
@@ -166,7 +208,7 @@ export default {
   padding: 10px 15px;
   color: #53e3a6;
   border-radius: 3px;
-  width: 250px;
+  width: 282px;
   cursor: pointer;
   font-size: 18px;
   transition-duration: 0.25s;
@@ -258,7 +300,7 @@ export default {
     transform: translateY(0);
   }
   100% {
-    transform: translateY(-700px) rotate(600deg);
+    transform: translateY(-1080px) rotate(600deg);
   }
 }
 @keyframes square {
@@ -266,7 +308,7 @@ export default {
     transform: translateY(0);
   }
   100% {
-    transform: translateY(-700px) rotate(600deg);
+    transform: translateY(-1080px) rotate(600deg);
   }
 }
 </style>
