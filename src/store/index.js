@@ -28,10 +28,20 @@ export default new Vuex.Store({
       state.msgCount += 1
       console.log('新增一条未读消息！注意查看哦！')
     },
+    // 减1未读消息数
+    reduceMsgCount (state) {
+      state.msgCount -= 1
+      console.log('已查看一条未读消息！')
+    },
     // 未读消息清零
     clearMsgCount (state) {
       state.msgCount = 0
       console.log('未读消息已查看')
+    },
+    // 未读消息设置数值
+    resetMsgCount (state, num) {
+      state.msgCount = num
+      console.log('未读消息数已重置')
     }
   },
   actions: {

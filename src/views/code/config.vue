@@ -15,10 +15,11 @@
 
       <div class="choose-edit"
            v-if="currentItem.step===1">
+
         <el-radio v-model="radioValue"
-                  label="1">markdown编辑</el-radio>
+                  label="0">公开</el-radio>
         <el-radio v-model="radioValue"
-                  label="2">codemirror编辑</el-radio>
+                  label="1">私密</el-radio>
       </div>
 
       <div v-if="currentItem.step===2">
@@ -41,6 +42,22 @@
                              :key="index"
                              :label="item.label"
                              :value="item.value"></el-option>
+                </el-select>
+                <el-select v-if="Item.el==='theme'"
+                           v-model="ruleForm[Item.prop]"
+                           :placeholder="Item.placeholder">
+                  <el-option v-for="(item,index) in Item.options"
+                             :key="index"
+                             :label="item.label"
+                             :value="item.value">
+                    <el-popover placement="right"
+                                trigger="hover">
+                      <div><img style="width:20rem"
+                             :src="`http://localhost:3000/images/${item.label}.png`"></div>
+                      <div slot="reference">{{item.label}}</div>
+                    </el-popover>
+                  </el-option>
+
                 </el-select>
               </el-form-item>
             </el-col>
@@ -83,10 +100,21 @@
                            :value="item.id"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="成果展示"
+            <el-form-item label="图片上传"
                           prop="">
-              <el-upload ref="upload"
-                         :limit="1"
+              <el-upload class="upload-demo"
+                         action="http://localhost:8080/api/article/uploadImg"
+                         :on-success="uploadSuccess"
+                         :on-preview="handlePreview"
+                         :on-remove="handleRemove"
+                         :file-list="fileList"
+                         list-type="picture">
+                <el-button size="small"
+                           type="primary">点击上传</el-button>
+                <div slot="tip"
+                     class="el-upload__tip">只能上传jpg/png文件</div>
+              </el-upload>
+              <!-- <el-upload ref="upload"
                          :on-success="handleUploadSuccess"
                          action="http://localhost:8080/api/article/uploadImg"
                          list-type="picture-card"
@@ -115,7 +143,7 @@
                     </span>
                   </span>
                 </div>
-              </el-upload>
+              </el-upload> -->
               <el-dialog :visible.sync="dialogVisible">
                 <img width="100%"
                      :src="dialogImageUrl"
@@ -162,7 +190,7 @@ export default {
     const stepArr = [
       {
         step: 1,
-        title: '选择编辑方式'
+        title: '选择发布方式'
       },
       {
         step: 2,
@@ -183,7 +211,7 @@ export default {
       // 步骤条当前项
       activeStep: 0,
       // 编辑方式
-      radioValue: '2',
+      radioValue: '0',
       // 当前序号
       stepNum: 0,
       step: stepArr,
@@ -203,24 +231,28 @@ export default {
             }
           ]
         },
+        // {
+        //   el: 'select',
+        //   label: '换行符',
+        //   prop: 'lineSeparator',
+        //   placeholder: '请选择换行符',
+        //   options: [
+        //     {
+        //       label: 'LF',
+        //       value: '/LF'
+        //     },
+        //     {
+        //       label: 'CRLF',
+        //       value: '/CRLF'
+        //     },
+        //     {
+        //       label: '',
+        //       value: ''
+        //     }
+        //   ]
+        // },
         {
-          el: 'select',
-          label: '换行符',
-          prop: 'lineSeparator',
-          placeholder: '请选择换行符',
-          options: [
-            {
-              label: 'LF',
-              value: '/LF'
-            },
-            {
-              label: 'CRLF',
-              value: '/CRLF'
-            }
-          ]
-        },
-        {
-          el: 'select',
+          el: 'theme',
           label: '主题',
           prop: 'theme',
           placeholder: '请选择主题',
@@ -236,15 +268,15 @@ export default {
             {
               label: 'base16-light',
               value: 'base16-light'
-            },
-            {
-              label: 'seti',
-              value: 'seti'
-            },
-            {
-              label: 'dracula',
-              value: 'dracula'
             }
+            // {
+            //   label: 'seti',
+            //   value: 'seti'
+            // },
+            // {
+            //   label: 'dracula',
+            //   value: 'dracula'
+            // }
           ]
         },
         {
@@ -323,9 +355,9 @@ export default {
         mode: [
           { required: true, message: '请选择模式', trigger: 'change' }
         ],
-        lineSeparator: [
-          { required: true, message: '请选择换行符', trigger: 'change' }
-        ],
+        // lineSeparator: [
+        //   { required: true, message: '请选择换行符', trigger: 'change' }
+        // ],
         theme: [
           { required: true, message: '请选择主题', trigger: 'change' }
         ],
@@ -365,10 +397,16 @@ export default {
       // 图片上传参数
       dialogImageUrl: '',
       dialogVisible: false,
-      disabled: false
+      disabled: false,
+      // 参数
+      query: this.$route.query || {},
+      // 文件列表
+      fileList: [],
+      fileNameList: []
     }
   },
   created () {
+    console.log(this.query, '777')
     getTags().then(res => {
       if (res.data.code === 200) {
         this.tagList = res.data.res
@@ -378,6 +416,9 @@ export default {
     }).catch(err => {
       console.log(err)
     })
+  },
+  mounted () {
+
   },
   methods: {
     prev () {
@@ -413,7 +454,7 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
+          // alert('submit!')
         } else {
           console.log('error submit!!')
           return false
@@ -428,10 +469,7 @@ export default {
     changeCode (val) {
       this.code = val
     },
-    // 图片上传方法
-    handleRemove (file) {
-      console.log(file)
-    },
+    // 图片上传相关
     handlePictureCardPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
@@ -440,10 +478,10 @@ export default {
       console.log(file)
     },
     submitUpload () {
-      this.$refs.upload.submit()
+      // this.$refs.upload.submit()
     },
     // 提交代码
-    save (imgName) {
+    save (imgName, imgList) {
       const params = {
         title: this.uploadForm.codeTitle,
         desc: this.uploadForm.desc,
@@ -452,12 +490,18 @@ export default {
         authorName: this.userInfo.name,
         createTime: new Date(),
         content: this.code,
-        imgName: imgName
+        imgName: imgName,
+        imgList: JSON.stringify(imgList),
+        private: parseInt(this.radioValue)
       }
-      submitCode(params).then(res => {
+      submitCode({ ...params, ...this.query }).then(res => {
         if (res.data.code === 200) {
           this.$store.commit('changeTagId', 0)
-          this.$router.push('/index')
+          if (this.query.teamId) {
+            this.$router.push(`/teamDetail?teamId=${this.query.teamId}`)
+          } else {
+            this.$router.push('/index')
+          }
         } else {
           console.log('failed')
         }
@@ -469,7 +513,8 @@ export default {
     saveAll () {
       this.$refs.uploadForm.validate((valid) => {
         if (valid) {
-          this.submitUpload()
+          // this.submitUpload()
+          this.save(this.fileNameList[0], this.fileNameList)
         } else {
           console.log('error submit!!')
           return false
@@ -477,8 +522,24 @@ export default {
       })
       // this.submitUpload()
     },
+    // 上传成功回调
     handleUploadSuccess (item) {
       this.save(item.filename)
+    },
+
+    handlePreview () {
+
+    },
+    // 移除图片回调
+    handleRemove (item) {
+      console.log(item.response.filename, '移除图片')
+      const name = item.response.filename
+      const index = this.fileNameList.indexOf(name)
+      this.fileNameList.splice(index, 1)
+    },
+    uploadSuccess (item) {
+      this.fileNameList.push(item.filename)
+      console.log(this.fileNameList, '222')
     }
   }
 }

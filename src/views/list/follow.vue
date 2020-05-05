@@ -4,8 +4,9 @@
          :key="index"
          class="item-box">
       <div class="item-left">
-        <div class="item-avator">
-          <el-avatar style="width:5rem;height:5rem"
+        <div class="item-avator"
+             @click="goUserDetail(item)">
+          <el-avatar style="width:5rem;height:5rem;cursor:pointer"
                      :src="`http://localhost:3000/images/${item.avator}`"></el-avatar>
         </div>
         <div class="item-content">
@@ -30,7 +31,7 @@
 import { getFollowUsers, followUser } from '@/api/user'
 
 export default {
-
+  inject: ['routerRefresh'],
   components: {
 
   },
@@ -81,6 +82,14 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    // 前往用户主页
+    goUserDetail (item) {
+      console.log(item)
+      this.$router.push({ path: '/user/home', query: { userId: item.id } })
+      // this.$router.push({ path: '/read', query: { articleId: item.id } })
+
+      this.routerRefresh()
     }
   }
 }

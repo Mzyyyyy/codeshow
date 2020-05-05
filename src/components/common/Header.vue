@@ -10,11 +10,14 @@
              :style="currentRoute!=='/index'?'color:gray':''"
              @click="clickHead('/index')">首页</div>
         <div class="header-item"
-             style="color:gray">热点</div>
+             style="color:gray">用户</div>
         <div class="header-item"
+             :style="currentRoute!=='/myTeam'?'color:gray':''"
+             @click="clickHead('/myTeam')">团队</div>
+        <!-- <div class="header-item"
              style="color:gray">专题</div>
         <div class="header-item"
-             style="color:gray">活动</div>
+             style="color:gray">活动</div> -->
       </div>
       <div class="search-box">
         <el-input :disabled="true"
@@ -97,6 +100,8 @@
 
 <script>
 export default {
+  inject: ['routerRefresh'],
+
   components: {
 
   },
@@ -182,6 +187,7 @@ export default {
           break
         case 'b':
           this.$router.push('/user/home')
+          this.routerRefresh()
           break
       }
     },
@@ -205,7 +211,8 @@ export default {
     },
     // 跳转至消息列表
     goMsgList () {
-      this.$store.commit('clearMsgCount') // 未读消息标记已读
+      // this.$store.commit('clearMsgCount') // 未读消息标记已读
+      this.$router.push('/user/message')
     }
   }
 }

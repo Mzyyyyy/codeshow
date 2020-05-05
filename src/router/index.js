@@ -4,6 +4,7 @@ import login from '@/views/user'
 import index from '@/views/dashboard'
 import code from '@/views/code'
 import list from '@/views/list'
+import team from '@/views/team'
 // const login = () => import('@/views/user')
 
 // const r = require.context()
@@ -20,6 +21,7 @@ const routes = []
   .concat(index)
   .concat(code)
   .concat(list)
+  .concat(team)
 
 const router = new VueRouter({
   routes

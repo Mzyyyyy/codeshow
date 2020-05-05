@@ -29,12 +29,19 @@
     </div>
     <div>
       <el-tabs tab-position="left"
+               @tab-click="handleClick"
                style="height: 30rem">
-        <el-tab-pane label="我的发布">
+        <el-tab-pane :label="ortherId?'ta的发布':'我的发布'">
           <List :list="myList"></List>
         </el-tab-pane>
-        <el-tab-pane label="我的收藏">我的收藏(未完成)</el-tab-pane>
-        <el-tab-pane label="我的关注">我的关注(未完成)</el-tab-pane>
+        <el-tab-pane v-if="!ortherId"
+                     :label="ortherId?'收藏':'我的收藏'">
+          <List :list="myList"></List>
+        </el-tab-pane>
+        <el-tab-pane v-if="!ortherId"
+                     :label="ortherId?'关注':'我的关注'">
+          <follow></follow>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -42,13 +49,16 @@
 
 <script>
 import { getUserInfo } from '@/api/user'
-import { getArticlesById } from '@/api/article'
+import { getArticlesById, getCollectList } from '@/api/article'
 import List from '@/components/dashboard/List'
+import follow from '../list/follow'
 import { parseTime } from '@/utils/common'
 
 export default {
+  inject: ['routerRefresh'],
   components: {
-    List
+    List,
+    follow
   },
   data () {
     return {
@@ -72,7 +82,7 @@ export default {
   },
   created () {
     console.log(this.$route)
-    this.ortherId = this.$route.query.userId
+    this.ortherId = this.$route.query.userId || null
     this.getArticles()
     this.getUserInfo()
   },
@@ -99,18 +109,53 @@ export default {
         console.log(err)
       })
     },
+    // 点击tab栏事件
+    handleClick (tab, event) {
+      console.log(tab, event)
+      if (tab.label === '我的发布') {
+        this.getArticles()
+      } else if (tab.label === '我的收藏') {
+        this.getCollectList()
+      } else {
 
+      }
+    },
     // 跳转编辑个人资料
     goEdit () {
       this.$router.push('/user/edit')
     },
     // 获取该用户发布文章
     getArticles () {
-      getArticlesById({ authorId: this.userInfo.id }).then(res => {
+      getArticlesById({ authorId: this.ortherId || this.userInfo.id }).then(res => {
         if (res.data.code === 200) {
           this.myList = res.data.res
           this.myList.map(item => {
             item.createTime = parseTime(item.createTime)
+            if (item.collectors.includes(this.userInfo.id)) {
+              item.isCollected = true
+            } else {
+              item.isCollected = false
+            }
+          })
+        } else {
+          console.log('failed')
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    // 获取我的收藏
+    getCollectList () {
+      getCollectList({ userId: this.ortherId || this.userInfo.id }).then(res => {
+        if (res.data.code === 200) {
+          this.myList = res.data.res
+          this.myList.map(item => {
+            item.createTime = parseTime(item.createTime)
+            if (item.collectors.includes(this.userInfo.id)) {
+              item.isCollected = true
+            } else {
+              item.isCollected = false
+            }
           })
         } else {
           console.log('failed')

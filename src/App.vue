@@ -2,7 +2,8 @@
   <div id="app">
     <Header v-if="this.$route.path!=='/login'||this.$route.path==='/registry'"></Header>
     <div :class="this.$route.path==='/login'||this.$route.path==='/registry'?'':'root-container'">
-      <router-view :class="currentRoute==='/index'?'router-view':'router-view-top'" />
+      <router-view v-if="routerAlive"
+                   :class="currentRoute==='/index'?'router-view':'router-view-top'" />
     </div>
     <!-- <el-backtop target=".root-container"></el-backtop> -->
 
@@ -10,13 +11,21 @@
 </template>
 <script>
 import Header from './components/common/Header'
+import { getMessage } from '@/api/article'
+
 export default {
   components: {
     Header
   },
   data () {
     return {
-      userInfo: JSON.parse(localStorage.getItem('userInfo')) || null
+      userInfo: JSON.parse(localStorage.getItem('userInfo')) || null,
+      routerAlive: true
+    }
+  },
+  provide () {
+    return {
+      routerRefresh: this.routerRefresh
     }
   },
   computed: {
@@ -29,14 +38,33 @@ export default {
       return this.$store.state.ring
     }
   },
-
+  created () {
+    this.getMessage()
+  },
   mounted () {
     this.$socket.emit('connection', 1)
     // this.$socket.emit('chatmessage', { name: 999, value: 999 })
     // this.sendMessage('mzy')
   },
   methods: {
-
+    // 获取未读消息数
+    getMessage (type) {
+      getMessage({ userId: this.userInfo.id }).then(res => {
+        if (res.data.code === 200) {
+          this.$store.commit('resetMsgCount', res.data.res.unRead.length)
+        } else {
+          console.log('failed')
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    routerRefresh () {
+      this.routerAlive = false
+      this.$nextTick(() => {
+        this.routerAlive = true
+      })
+    }
   },
   sockets: { // 名字不能改，服务触发方法的列表
     connect () {

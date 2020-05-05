@@ -49,6 +49,19 @@
         </el-badge>
       </div> -->
     </div>
+
+    <div v-if="url"
+         class="demo-image__preview show-img">
+      <el-image style="width: 10rem; height: 10rem"
+                :src="url"
+                :preview-src-list="srcList">
+      </el-image>
+      <!-- <div style="color:gray;font-size:0.5rem">点击图片预览</div> -->
+      <div class="title-box">
+        <div class="title">{{info.title}}</div>
+        <div class="desc">{{info.desc}}</div>
+      </div>
+    </div>
     <codemirror ref="mycode"
                 v-model="code"
                 :options="cmOptions"
@@ -64,8 +77,10 @@
                      :src="`http://localhost:3000/images/${item.userAvator}`"></el-avatar>
         </div>
         <div class="comment-right">
-          <div class="text-light">{{item.userName}}</div>
-          <div class="comment-content">{{item.content}}</div>
+          <div class="text-light">{{item.userName}}<img v-if="item.userId==teamDetail.ownerId"
+                 class="vip"
+                 src="@/assets/images/vip.png"></div>
+          <div :class="item.userId==teamDetail.ownerId?'comment-content comment-highlight':'comment-content'">{{item.content}}</div>
           <div>
             <div class="text-light">{{item.createTime}}</div>
           </div>
@@ -96,6 +111,7 @@ import { getCode, pulishComments, getComments, collect } from '@/api/article'
 import { codemirror } from 'vue-codemirror'
 import { followUser, getFollowUsers } from '@/api/user'
 import { parseTime } from '@/utils/common'
+import { getTeamDetail } from '@/api/team'
 
 export default {
   components: {
@@ -171,13 +187,24 @@ export default {
       // 是否收藏
       isCollected: false,
       // 是否收藏
-      isFollowed: false
+      isFollowed: false,
+      // 预览图片列表
+      srcList: null,
+      // 图片预览初始
+      url: null,
+      // 所有信息
+      info: null,
+      // 团队发布文章的团队详情
+      teamDetail: {}
     }
   },
   created () {
     // this.$socket.emit('connection', 1)
     console.log('id', this.$route.query.articleId)
     this.id = this.$route.query.articleId
+    if (this.$route.query.teamId) {
+      this.getTeamDetail()
+    }
     this.getCode()
     this.getComments()
   },
@@ -186,9 +213,22 @@ export default {
     getCode () {
       getCode({ id: this.id }).then(res => {
         if (res.data.code === 200) {
+          this.info = res.data.res
           this.code = res.data.res.content
           this.authorId = res.data.res.authorId
           this.articleTitle = res.data.res.title
+          if (res.data.res.imgList.length > 0) {
+            const temp = res.data.res.imgList
+            for (let i = 0; i < temp.length; i++) {
+              temp[i] = 'http://localhost:3000/images/' + temp[i]
+            }
+            this.srcList = temp
+            this.url = this.srcList[0]
+          } else {
+            this.srcList = ['http://localhost:3000/images/' + res.data.res.imgName]
+            this.url = 'http://localhost:3000/images/' + res.data.res.imgName
+          }
+
           if (JSON.parse(res.data.res.collectors).includes(this.userInfo.id)) {
             this.isCollected = true
           }
@@ -291,12 +331,24 @@ export default {
     // 访问主页
     goHome () {
       this.$router.push(`/user/orther?userId=${this.authorId}`)
+    },
+    // 获取团队详情
+    getTeamDetail () {
+      getTeamDetail({ teamId: this.$route.query.teamId }).then(res => {
+        if (res.data.code === 200) {
+          this.teamDetail = res.data.res
+        } else {
+          console.log('failed')
+        }
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }
 </script>
 
-<style lan="scss" scoped>
+<style lang="scss" scoped>
 .codesql {
   font-size: 11pt;
   text-align: left;
@@ -344,9 +396,19 @@ export default {
 }
 .text-light {
   color: gray;
+  display: flex;
+}
+.vip {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-left: 0.5rem;
 }
 .comment-content {
   margin: 0.5rem 0;
+}
+.comment-highlight {
+  color: red;
+  font-weight: bold;
 }
 .comment-input {
   position: fixed;
@@ -367,7 +429,31 @@ export default {
 .menu-box {
   position: absolute;
   left: 12rem;
-  top: 9rem;
+  top: calc(100vh - 10rem);
+}
+.show-img {
+  position: absolute;
+  left: 8rem;
+  top: 6rem;
+  max-width: 10rem;
+}
+.title-box {
+  /* position: absolute;
+  left: 8rem;
+  top: 20rem; */
+  // margin-top: 1rem;
+  .title {
+    font-size: 1.4rem;
+    margin: 1rem 0;
+    max-width: 10rem;
+    overflow-x: scroll;
+  }
+  .desc {
+    text-align: left;
+    color: gray;
+    max-height: 16rem;
+    overflow-y: scroll;
+  }
 }
 .menu-item {
   margin-bottom: 2rem;

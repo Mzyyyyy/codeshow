@@ -2,6 +2,8 @@ import login from './login'
 import home from './home'
 import edit from './edit'
 import orther from './orther'
+import message from './message'
+import tag from './tag'
 const user = [
   {
     path: '/login',
@@ -28,6 +30,17 @@ const user = [
     name: 'edit',
     component: edit
 
+  },
+  {
+    path: '/user/message',
+    name: 'message',
+    component: message
+
+  },
+  {
+    path: '/user/tag',
+    name: 'tag',
+    component: tag
   }
 ]
 

@@ -88,3 +88,30 @@ export function getArticlesById (data) { // {authorId}
     data: data
   })
 }
+
+// 根据userId，temId，sectionId获取文章
+export function getArticleByTeam (data) { // {userId，temId，sectionId}
+  return request({
+    url: '/api/article/getArticleByTeam',
+    method: 'post',
+    data: data
+  })
+}
+
+// 查看当前用户所有未读消息
+export function getMessage (data) { // {userId}
+  return request({
+    url: '/api/article/getMessage',
+    method: 'post',
+    data: data
+  })
+}
+
+// 查看当前用户所有未读消息
+export function readComment (data) { // {userId||commentId}
+  return request({
+    url: '/api/article/readComment',
+    method: 'post',
+    data: data
+  })
+}

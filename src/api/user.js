@@ -52,3 +52,21 @@ export function getFollowUsers (data) {
     data: data
   })
 }
+
+// 获取id获取用户列表 {ids}
+export function getUsersByIds (data) {
+  return request({
+    url: '/api/users/getUsersByIds',
+    method: 'post',
+    data: data
+  })
+}
+
+// 模糊查询用户（id或name）
+export function searchUser (data) { // keyword
+  return request({
+    url: '/api/users/searchUser',
+    method: 'post',
+    data: data
+  })
+}
