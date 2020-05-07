@@ -99,6 +99,8 @@
 </template>
 
 <script>
+import { getTags } from '@/api/article'
+
 export default {
   inject: ['routerRefresh'],
 
@@ -116,27 +118,27 @@ export default {
         {
           id: 0,
           name: 'All'
-        },
-        {
-          id: 1,
-          name: 'javaScript'
-        },
-        {
-          id: 2,
-          name: 'HTML'
-        },
-        {
-          id: 3,
-          name: 'CSS'
-        },
-        {
-          id: 4,
-          name: '设计模式'
-        },
-        {
-          id: 5,
-          name: '数据结构和算法'
         }
+        // {
+        //   id: 1,
+        //   name: 'javaScript'
+        // },
+        // {
+        //   id: 2,
+        //   name: 'HTML'
+        // },
+        // {
+        //   id: 3,
+        //   name: 'CSS'
+        // },
+        // {
+        //   id: 4,
+        //   name: '设计模式'
+        // },
+        // {
+        //   id: 5,
+        //   name: '数据结构和算法'
+        // }
       ],
       // 当前选中tag
       activeItem: 0
@@ -162,6 +164,7 @@ export default {
   },
   created () {
     console.log(this.$route.path)
+    this.getTags()
     // console.log(this.$store.state.tagId, '111')
   },
   methods: {
@@ -189,6 +192,9 @@ export default {
           this.$router.push('/user/home')
           this.routerRefresh()
           break
+        case 'c':
+          this.$router.push('/user/tag')
+          break
       }
     },
     // 写代码
@@ -213,6 +219,18 @@ export default {
     goMsgList () {
       // this.$store.commit('clearMsgCount') // 未读消息标记已读
       this.$router.push('/user/message')
+    },
+    // 获取该用户关注标签
+    getTags () { // {userId:查询该用户||不传查全部}
+      getTags({ userId: this.userInfo.id }).then(res => {
+        if (res.data.code === 200) {
+          this.codeType = this.codeType.concat(res.data.res)
+        } else {
+          console.log('failed')
+        }
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }

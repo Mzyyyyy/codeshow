@@ -115,3 +115,12 @@ export function readComment (data) { // {userId||commentId}
     data: data
   })
 }
+
+// 修改该用户关注标签状态
+export function changeTag (data) { // {userId||tagId}
+  return request({
+    url: '/api/article/changeTag',
+    method: 'post',
+    data: data
+  })
+}
