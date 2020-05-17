@@ -68,6 +68,7 @@ export default {
   methods: {
     // 获取主页文章列表
     getCollectList () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       console.log(this.userInfo)
       const params = { userId: this.userInfo.id } || {}
       getCollectList(params).then(res => {
@@ -85,6 +86,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })

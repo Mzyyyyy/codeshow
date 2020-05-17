@@ -72,6 +72,7 @@ export default {
     // 登录
     login (event) {
       event.preventDefault()
+      // this.$ScreenLoading.show('加载中...', 'top')
       // document.getElementsByClassName('form')[0].fadeOut(500)
       // document.getElementsByClassName('wrapper')[0].addClass('form-success')
       login({ ...this.user }).then(res => {
@@ -85,6 +86,7 @@ export default {
         } else {
           console.log('登录失败')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })

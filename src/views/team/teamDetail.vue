@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <div v-if="currentId"
+    <div v-if="currentId&&teamDetail.ownerId!=userInfo.id"
          class="right-btn">
       <div>
         <el-button @click="goSubmit">前往提交</el-button>
@@ -231,6 +231,7 @@ export default {
   methods: {
     // 获取团队详情
     getTeamDetail () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       getTeamDetail({ teamId: this.teamId }).then(res => {
         if (res.data.code === 200) {
           this.teamDetail = res.data.res
@@ -248,6 +249,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })
@@ -362,6 +364,7 @@ export default {
     },
     // 查看提交文章详情
     goRead (item) {
+      // this.$ScreenLoading.show('加载中...', 'top')
       console.log(item, 333)
       getArticleByTeam({ authorId: item.id, teamId: this.teamId, sectionId: this.currentId }).then(res => {
         if (res.data.code === 200) {
@@ -369,6 +372,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })
@@ -376,11 +380,22 @@ export default {
     // 前往提交页面
     goSubmit () {
       // this.$router.push('/config')
+      console.log(this.teamDetail.ownerId, this.userInfo.id, this.teamDetail.ownerId != this.userInfo.id)
       this.$router.push({ path: '/config', query: { teamId: this.teamId, sectionId: this.currentId } })
     },
     // 查看我的提交
     goMySubmit () {
-
+      getArticleByTeam({ authorId: this.userInfo.id, teamId: this.teamId, sectionId: this.currentId }).then(res => {
+        if (res.data.code === 200) {
+          console.log(res.data.res)
+          this.$router.push(`/read?articleId=${res.data.res.id}`)
+        } else {
+          console.log('failed')
+        }
+        this.$ScreenLoading.hide()
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }

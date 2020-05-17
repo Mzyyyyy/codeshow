@@ -70,3 +70,21 @@ export function searchUser (data) { // keyword
     data: data
   })
 }
+
+// 更新草稿箱
+export function updateDraft (data) { // {content,userId}
+  return request({
+    url: '/api/users/updateDraft',
+    method: 'post',
+    data: data
+  })
+}
+
+// 获取上次保存草稿
+export function getDraft (data) { // {userId}
+  return request({
+    url: '/api/users/getDraft',
+    method: 'post',
+    data: data
+  })
+}

@@ -201,6 +201,7 @@ export default {
     //   })
     // },
     getTeamList () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       getTeamList({ id: this.userInfo.id }).then(res => {
         if (res.data.code === 200) {
           this.myCreateList = res.data.res.myOwn
@@ -208,6 +209,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })
@@ -323,7 +325,7 @@ export default {
 .menu-box {
   position: absolute;
   left: 12rem;
-  top: 9rem;
+  top: 8rem;
 }
 ::v-deep .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;

@@ -164,6 +164,9 @@
       <el-button v-if="activeStep===1"
                  @click="setDefault"
                  size="medium">设为默认配置</el-button>
+      <el-button v-if="activeStep===2"
+                 @click="getDraft"
+                 size="medium">获取未上传草稿</el-button>
       <el-button v-if="activeStep<3"
                  type="primary"
                  size="medium"
@@ -180,6 +183,7 @@
 // import Write from '../code/write'
 import vueCode from '../../components/code/vueCodemirror'
 import { submitCode, getTags } from '@/api/article'
+import { updateDraft, getDraft } from '@/api/user'
 
 export default {
   components: {
@@ -402,7 +406,9 @@ export default {
       query: this.$route.query || {},
       // 文件列表
       fileList: [],
-      fileNameList: []
+      fileNameList: [],
+      // 定时保存定时器
+      timer: null
     }
   },
   created () {
@@ -420,14 +426,50 @@ export default {
   mounted () {
 
   },
+  beforeDestroy () {
+    this.updateDraft()
+    clearInterval(this.timer)
+  },
   methods: {
+    // 保存草稿
+    updateDraft () {
+      updateDraft({ content: this.code, userId: this.userInfo.id }).then(res => {
+        if (res.data.code === 200) {
+          console.log('保存至草稿')
+        } else {
+          console.log('failed')
+        }
+        this.$ScreenLoading.hide()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    // 获取草稿
+    getDraft () {
+      getDraft({ userId: this.userInfo.id }).then(res => {
+        if (res.data.code === 200) {
+          this.code = res.data.res[0].draft
+        } else {
+          console.log('failed')
+        }
+        this.$ScreenLoading.hide()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    // 上一步
     prev () {
+      clearInterval(this.timer)
       this.activeStep -= 1
       this.stepNum -= 1
       this.currentItem = this.step[this.stepNum]
+      if (this.stepNum === 2 && this.code !== '') {
+        this.timer = setInterval(this.updateDraft, 5000)
+      }
     },
     // 下一步
     next () {
+      clearInterval(this.timer)
       if (this.stepNum === 1) { //! !!!!!!!!!!!!!!
         this.$refs.ruleForm.validate((valid) => {
           if (valid) {
@@ -444,6 +486,11 @@ export default {
         this.activeStep += 1
         this.stepNum += 1
         this.currentItem = this.step[this.stepNum]
+      }
+      // 编辑代码stepNum为2
+      console.log(this.stepNum, '222')
+      if (this.stepNum === 2 && this.code !== '') {
+        this.timer = setInterval(this.updateDraft, 5000)
       }
     },
     // 默认编号设置
@@ -468,6 +515,10 @@ export default {
     // 编辑代码
     changeCode (val) {
       this.code = val
+      clearInterval(this.timer)
+      if (this.stepNum === 2 && this.code !== '') {
+        this.timer = setInterval(this.updateDraft, 5000)
+      }
     },
     // 图片上传相关
     handlePictureCardPreview (file) {
@@ -482,6 +533,7 @@ export default {
     },
     // 提交代码
     save (imgName, imgList) {
+      // this.$ScreenLoading.show('加载中...', 'top')
       const params = {
         title: this.uploadForm.codeTitle,
         desc: this.uploadForm.desc,
@@ -505,6 +557,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })

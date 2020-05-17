@@ -80,6 +80,7 @@ export default {
   methods: {
     // 获取用户信息
     getUserInfo () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       getUserInfo({ id: this.ortherId || this.userInfo.id }).then(res => {
         if (res.data.code === 200) {
           if (res.data.res.id === this.userInfo.id) {
@@ -97,6 +98,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })

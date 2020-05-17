@@ -33,6 +33,7 @@ export default {
   methods: {
     // 保存
     save () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       const params = {
         title: 'article1',
         authorId: this.userInfo.id,
@@ -46,6 +47,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })

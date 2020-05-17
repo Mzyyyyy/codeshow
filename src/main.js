@@ -9,7 +9,10 @@ import store from './store'
 import VueCodeMirror from 'vue-codemirror'
 import 'codemirror/lib/codemirror.css'
 
-import Socket from 'vue-socket.io' // 引入组件
+import ScreenLoading from 'screenloading'
+
+import Socket from 'vue-socket.io'
+Vue.use(ScreenLoading) // 引入全局loading组件
 Vue.use(new Socket({
   debug: false, // 开启提示
   connection: 'ws://localhost:3000' // 后台服务地址

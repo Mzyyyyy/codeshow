@@ -72,6 +72,7 @@ export default {
   methods: {
     // 获取消息列表
     getMessage (type) {
+      // this.$ScreenLoading.show('加载中...', 'top')
       getMessage({ userId: this.userInfo.id }).then(res => {
         if (res.data.code === 200) {
           this.messageList = res.data.res[type]
@@ -85,6 +86,7 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+      this.$ScreenLoading.hide()
     },
     // 查看消息详情
     readComment (obj) { // {commentId||userId}
@@ -136,8 +138,8 @@ export default {
 .user-message {
   .menu-box {
     position: absolute;
-    right: 12rem;
-    top: 5rem;
+    right: 10rem;
+    top: 6rem;
   }
   .message-title {
     display: flex;

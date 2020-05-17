@@ -31,12 +31,13 @@
 <script>
 import List from '@/components/dashboard/List'
 import Menu from '@/components/dashboard/Menu'
-import { getArticleList } from '@/api/article'
+import { getArticleList, getLikeArticles } from '@/api/article'
 import { parseTime } from '@/utils/common'
 
 // import { formatTime } from '@/utils/common'
 
 export default {
+  inject: ['routerRefresh'],
   components: {
     List,
     Menu
@@ -86,7 +87,11 @@ export default {
   },
   created () {
     this.$store.commit('changeTagId', 0)
-    this.getArticleList({ userId: this.userInfo.id })
+    if (this.$route.query.keyword) {
+      this.getLikeArticles()
+    } else {
+      this.getArticleList({ userId: this.userInfo.id })
+    }
   },
   computed: {
     // 动态监听tag变化
@@ -102,6 +107,8 @@ export default {
   methods: {
     // 获取主页文章列表
     getArticleList (obj) {
+      // this.$ScreenLoading.show('加载中...', 'top')
+      // this.$ScreenLoading.hide()
       const params = obj || {}
       getArticleList(params).then(res => {
         if (res.data.code === 200) {
@@ -115,10 +122,12 @@ export default {
             item.createTime = parseTime(item.createTime)
           })
           this.listArr = list
+          // this.$ScreenLoading.hide()
           console.log(this.listArr)
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })
@@ -136,6 +145,31 @@ export default {
     getMyFollows () {
       this.$store.commit('changeTagId', 0)
       this.$router.push('./follow')
+    },
+    // 模糊查询文章
+    getLikeArticles () {
+      // this.$ScreenLoading.show('加载中...', 'top')
+      getLikeArticles({ keyword: this.$route.query.keyword }).then(res => {
+        if (res.data.code === 200) {
+          const list = res.data.res
+          list.map(item => {
+            if (item.collectors.includes(this.userInfo.id)) {
+              item.isCollected = true
+            } else {
+              item.isCollected = false
+            }
+            item.createTime = parseTime(item.createTime)
+          })
+          this.listArr = list
+          // this.$ScreenLoading.hide()
+          console.log(this.listArr)
+        } else {
+          console.log('failed')
+        }
+        this.$ScreenLoading.hide()
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }

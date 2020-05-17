@@ -72,8 +72,10 @@
       <div v-for="(item,index) in commentList"
            :key="index"
            class="comment-item">
-        <div>
+        <div @click="goUser(item)"
+             style="cursor:pointer">
           <el-avatar :size="'small'"
+                     style="cursor:pointer"
                      :src="`http://localhost:3000/images/${item.userAvator}`"></el-avatar>
         </div>
         <div class="comment-right">
@@ -211,6 +213,7 @@ export default {
   methods: {
     // 获取代码
     getCode () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       getCode({ id: this.id }).then(res => {
         if (res.data.code === 200) {
           this.info = res.data.res
@@ -253,6 +256,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })
@@ -343,6 +347,10 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    // 查看用户主页
+    goUser (item) {
+      this.$router.push({ path: '/user/home', query: { userId: item.userId } })
     }
   }
 }

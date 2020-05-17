@@ -21,6 +21,12 @@
             <img class="icon-img"
                  style="margin-left:1rem;width:1.8rem"
                  src="@/assets/images/comment2.png">
+            <el-button v-if="del"
+                       @click.stop="deleteArticle(item,$event)"
+                       type="danger"
+                       size="small"
+                       style="margin-left:2rem"
+                       plain>删除</el-button>
           </div>
         </div>
         <div class="list-photo">
@@ -49,7 +55,7 @@
 </template>
 
 <script>
-import { collect } from '@/api/article'
+import { collect, deleteArticle } from '@/api/article'
 // import { parseTime } from '@/utils/common'
 
 export default {
@@ -57,6 +63,10 @@ export default {
     list: {
       type: Array,
       required: true
+    },
+    del: {
+      type: Boolean,
+      required: false
     }
   },
   components: {
@@ -88,6 +98,31 @@ export default {
         }
       }).catch(err => {
         console.log(err)
+      })
+    },
+    // 删除文章
+    deleteArticle (item, event) {
+      event.preventDefault()
+      console.log(item)
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteArticle({ articleId: item.id }).then(res => {
+          if (res.data.code === 200) {
+            this.$emit('deleteCb')
+          } else {
+            console.log('failed')
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      }).catch(() => {
+        // this.$message({
+        //   type: 'info',
+        //   message: '已取消删除'
+        // })
       })
     }
   }
@@ -126,6 +161,8 @@ export default {
 }
 .list-btn {
   margin-top: 0.4rem;
+  display: flex;
+  align-items: center;
 }
 .list-photo {
   // width: 15rem;

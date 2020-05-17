@@ -115,6 +115,7 @@ export default {
   methods: {
     // 获取用户信息
     getUserInfo () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       getUserInfo({ id: this.userInfo.id }).then(res => {
         if (res.data.code === 200) {
           this.userDetail = res.data.res
@@ -127,6 +128,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })
@@ -159,6 +161,7 @@ export default {
     },
     // 保存编辑信息
     save () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       const params = {
         id: this.userInfo.id
         // name: this.ruleForm.name,
@@ -175,6 +178,7 @@ export default {
         } else {
           console.log('failed')
         }
+        this.$ScreenLoading.hide()
       }).catch(err => {
         console.log(err)
       })

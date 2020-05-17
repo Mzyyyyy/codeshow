@@ -1,16 +1,17 @@
 <template>
   <div class="header">
     <div class="header-container">
-      <div style="width:10rem">
-        logo
+      <div class="logo-box">
+        <img src="@/assets/images/logo.png">
       </div>
       <div class="
            head-center">
         <div class="header-item"
              :style="currentRoute!=='/index'?'color:gray':''"
              @click="clickHead('/index')">首页</div>
-        <div class="header-item"
-             style="color:gray">用户</div>
+        <!-- <div class="header-item"
+             :style="currentRoute!=='/hot'?'color:gray':''"
+             @click="clickHead('/hot')">热点</div> -->
         <div class="header-item"
              :style="currentRoute!=='/myTeam'?'color:gray':''"
              @click="clickHead('/myTeam')">团队</div>
@@ -20,9 +21,10 @@
              style="color:gray">活动</div> -->
       </div>
       <div class="search-box">
-        <el-input :disabled="true"
+        <el-input :disabled="false"
                   placeholder="请输入搜索内容"
                   suffix-icon="el-icon-search"
+                  @change="searchAll"
                   v-model="searchContent">
         </el-input>
       </div>
@@ -62,7 +64,7 @@
                 </el-badge>
               </div>
             </el-dropdown-item>
-            <el-dropdown-item command="c">标签管理</el-dropdown-item>
+            <el-dropdown-item command="d">标签管理</el-dropdown-item>
 
             <!-- <el-dropdown-item command="d"
                               disabled>草稿</el-dropdown-item> -->
@@ -168,6 +170,12 @@ export default {
     // console.log(this.$store.state.tagId, '111')
   },
   methods: {
+    // 全局搜索
+    searchAll () {
+      this.$router.push(`/index?keyword=${this.searchContent}`)
+      this.routerRefresh()
+      console.log(this.searchContent)
+    },
     goLogin () {
       this.$router.push('/login')
     },
@@ -176,6 +184,7 @@ export default {
     },
     // 选择代码类型
     goRoute (item) {
+      this.searchContent = ''
       this.activeItem = item.id
       this.$store.commit('changeTagId', item.id)
     },
@@ -193,6 +202,9 @@ export default {
           this.routerRefresh()
           break
         case 'c':
+          this.$router.push('/user/message')
+          break
+        case 'd':
           this.$router.push('/user/tag')
           break
       }
@@ -248,6 +260,7 @@ export default {
   background: white;
   border-bottom: 1px solid rgba(187, 187, 187, 0.3);
   z-index: 999;
+  // z-index: 10000;
   // font-size: 1.2rem;
   .header-container {
     display: flex;
@@ -356,4 +369,11 @@ export default {
 //   top: 1rem !important;
 //   right: 0rem;
 // }
+.logo-box {
+  display: flex;
+  align-items: center;
+  img {
+    width: 12rem;
+  }
+}
 </style>

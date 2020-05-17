@@ -124,3 +124,12 @@ export function changeTag (data) { // {userId||tagId}
     data: data
   })
 }
+
+// 删除文章
+export function deleteArticle (data) { // {articleId}
+  return request({
+    url: '/api/article/deleteArticle',
+    method: 'post',
+    data: data
+  })
+}

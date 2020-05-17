@@ -1,5 +1,6 @@
 import dashboard from './dashboard'
 import chat from './chat'
+import hot from './hot'
 const index = [
   {
     path: '/index',
@@ -10,6 +11,11 @@ const index = [
     path: '/chat',
     name: 'indchatex',
     component: chat
+  },
+  {
+    path: '/hot',
+    name: 'hot',
+    component: hot
   }
 ]
 

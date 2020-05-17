@@ -9,7 +9,8 @@
         </div>
         <div class="item-content">
           <div>
-            <div class="item-name">{{userDetail.name}}</div>
+            <div class="item-name">{{userDetail.name}}<span class="item-desc"
+                    style="margin-left:1rem">ID:{{userDetail.id}}</span></div>
             <div class="item-desc">{{userDetail.desc}}</div>
           </div>
         </div>
@@ -32,7 +33,9 @@
                @tab-click="handleClick"
                style="height: 30rem">
         <el-tab-pane :label="ortherId?'ta的发布':'我的发布'">
-          <List :list="myList"></List>
+          <List :list="myList"
+                :del="true"
+                @deleteCb="getArticles"></List>
         </el-tab-pane>
         <el-tab-pane v-if="!ortherId"
                      :label="ortherId?'收藏':'我的收藏'">
@@ -89,6 +92,7 @@ export default {
   methods: {
     // 获取用户信息
     getUserInfo () {
+      // this.$ScreenLoading.show('加载中...', 'top')
       getUserInfo({ id: this.ortherId || this.userInfo.id }).then(res => {
         if (res.data.code === 200) {
           if (res.data.res.id === this.userInfo.id) {
@@ -108,6 +112,7 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+      this.$ScreenLoading.hide()
     },
     // 点击tab栏事件
     handleClick (tab, event) {
